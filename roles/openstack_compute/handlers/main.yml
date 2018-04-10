@@ -1,0 +1,20 @@
+---
+
+- name: nova-api restart
+  service: name=nova-api state=restarted
+  
+- name: nova-consoleauth restart
+  service: name=nova-consoleauth state=restarted
+  
+- name: nova-scheduler restart
+  service: name=nova-scheduler state=restarted
+  
+- name: nova-conductor restart
+  service: name=nova-conductor state=restarted
+  
+- name: nova-spiceproxy restart
+  service: name=nova-spiceproxy state=restarted        
+
+- name: nova-compute restart
+  service: name=nova-compute state=restarted        
+

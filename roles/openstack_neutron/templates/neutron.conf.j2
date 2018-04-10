@@ -1,0 +1,67 @@
+[DEFAULT]
+debug = True        
+core_plugin = ml2
+service_plugins = neutron.services.l3_router.l3_router_plugin.L3RouterPlugin,neutron.services.metering.metering_plugin.MeteringPlugin
+allow_overlapping_ips = True
+rpc_backend = rabbit
+auth_strategy = keystone
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+
+        
+[agent]
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+tunnel_types = vxlan
+l2_population = true
+
+[cors]
+        
+[cors.subdomain]
+        
+[database]
+connection = mysql+pymysql://neutron:{{ openstack_password }}@{{ controller }}/neutron
+        
+[keystone_authtoken]
+auth_uri = http://{{ controller }}:5000
+auth_url = http://{{ controller }}:5000
+memcached_servers = {{ controller }}:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = {{ openstack_password }}
+        
+[matchmaker_redis]
+        
+[nova]
+auth_url = http://{{ controller }}:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = {{ openstack_password }}
+        
+[oslo_concurrency]
+        
+[oslo_messaging_amqp]
+        
+[oslo_messaging_notifications]
+        
+[oslo_messaging_rabbit]
+rabbit_host = {{ controller }}
+rabbit_userid = openstack
+rabbit_password = {{ openstack_password }}
+        
+[oslo_messaging_zmq]
+        
+[oslo_policy]
+
+[qos]
+        
+[quotas]
+        
+[ssl]
+

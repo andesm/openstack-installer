@@ -1,0 +1,58 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+
+- include_tasks: roles/lib/tasks/import_database.yml
+
+- include_tasks: roles/openstack_lib/tasks/create_identity_service.yml
+  vars:
+    openstack_commands:        
+      - user create --domain default --password {{ openstack_password }} {{ component }}
+      - role add --project service --user {{ component }} admin
+      - service create --name {{ component }}v2 --description "OpenStack {{ service.capitalize }}" {{ service }}v2
+      - service create --name {{ component }}v3 --description "OpenStack {{ service.capitalize }}" {{ service }}v3
+      - endpoint create --region RegionOne {{ service }}v2 public http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }}v2 internal http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }}v2 admin http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }}v3 public http://{{ controller }}:{{ api_port2 }}
+      - endpoint create --region RegionOne {{ service }}v3 internal http://{{ controller }}:{{ api_port2 }}
+      - endpoint create --region RegionOne {{ service }}v3 admin http://{{ controller }}:{{ api_port2 }}
+
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- include_tasks: roles/lib/tasks/create_configs.yml
+
+- include_tasks: roles/lib/tasks/enable_service.yml
+
+- include_tasks: roles/openstack_lib/tasks/service_db_sync.yml
+
+- name: Check the cinder volume type exists
+  shell: 'cinder --os-username admin --os-tenant-name admin extra-specs-list | grep HDD'
+  register: result
+  changed_when: False
+  failed_when: False
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+
+- name: Create the cinder volume type 
+  command: '{{ item }}'
+  when: result.rc
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+  with_items: 
+    - openstack --os-username admin --os-tenant-name admin volume type create HDD
+    - openstack --os-username admin --os-tenant-name admin volume type set HDD  --property volume_backend_name=HDD
+    - openstack --os-username admin --os-tenant-name admin volume type create SSD
+    - openstack --os-username admin --os-tenant-name admin volume type set SSD  --property volume_backend_name=SSD

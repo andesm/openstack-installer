@@ -1,0 +1,10 @@
+---
+
+- hosts: dhcp
+  become: yes
+  roles:
+    - init
+    - network
+    
+
+    

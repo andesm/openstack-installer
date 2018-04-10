@@ -1,0 +1,45 @@
+---
+
+component: dashbord
+service: None
+
+packages:
+  - openstack-dashboard
+
+replaces:
+  - file: /etc/openstack-dashboard/local_settings.py
+    contents:
+      - regexp:  'OPENSTACK_HOST = "127.0.0.1"'
+        replace: 'OPENSTACK_HOST = "{{ local_ip }}"'
+      - regexp:  r"ALLOWED_HOSTS = '\*'"
+        replace: "ALLOWED_HOSTS = ['*', ]"
+      - regexp:  "'LOCATION': '127.0.0.1:11211'"
+        replace: "'LOCATION': '{{ local_ip }}:11211'"
+      - regexp:  'OPENSTACK_KEYSTONE_URL = "http://%s:5000/v2.0" % OPENSTACK_HOST'
+        replace: 'OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST'
+      - regexp:  '#OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = False'
+        replace: 'OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True'
+      - regexp:  "#OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'"
+        replace: "OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'"
+      - regexp:  'TIME_ZONE = "UTC"'
+        replace: 'TIME_ZONE = "Japan"'
+    notify:
+      - apache2 restart
+      
+blockinfiles:
+  - file: /etc/openstack-dashboard/local_settings.py
+    contents:
+      - insertafter: ^# memcached set CACHES to something like
+        block: |
+          SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+      - insertafter: ^#OPENSTACK_API_VERSIONS = {
+        block: |
+          OPENSTACK_API_VERSIONS = {
+              "identity": 3,
+              "image": 2,
+              "volume": 2,
+          }            
+    notify:
+      - apache2 restart
+
+  

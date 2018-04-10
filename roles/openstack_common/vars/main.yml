@@ -1,0 +1,27 @@
+---
+
+packages:
+  - python-openstackclient
+  - rabbitmq-server
+  - memcached
+  - python-memcache
+
+replaces:
+  - file: /etc/memcached.conf
+    contents:
+      - regexp:  '-l 127.0.0.1'
+        replace: '-l {{ local_ip }}'
+    notify:
+      - memcached restart
+  
+blockinfiles:
+  - file: /etc/sudoers
+    contents:
+      - insertafter: ^root ALL=
+        block: |
+          andesm ALL=(ALL) NOPASSWD: ALL
+    notify:
+      - noop
+
+
+

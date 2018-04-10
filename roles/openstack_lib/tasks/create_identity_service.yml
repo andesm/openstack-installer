@@ -1,0 +1,31 @@
+---
+
+- name: Check that the Identity service exists
+  shell: openstack service list | grep {{ service }}
+  register: result
+  failed_when: False
+  changed_when: False
+  when: service != 'None'
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+
+- name: Create the Identity service
+  command: openstack {{ item }}
+  when: service != 'None' and result.rc
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+  with_items: '{{ openstack_commands }}'
+
+  

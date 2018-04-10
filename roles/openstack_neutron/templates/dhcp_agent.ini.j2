@@ -1,0 +1,8 @@
+[DEFAULT]
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver 
+#interface_driver = linuxbridge
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+enable_isolated_metadata = True
+dhcp-option-force=26,1450
+        
+[AGENT]

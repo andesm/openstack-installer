@@ -1,0 +1,3 @@
+CREATE DATABASE {{ component }};
+GRANT ALL PRIVILEGES ON {{ component }}.* TO '{{ component }}'@'localhost' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}.* TO '{{ component }}'@'%' IDENTIFIED BY '{{ openstack_password }}';

@@ -1,0 +1,16 @@
+
+- hosts: openstack
+  become: yes
+  roles:
+    - init
+    - mariadb
+    - openstack_common
+    - openstack_identity
+    - openstack_image
+    - openstack_compute
+    - openstack_neutron
+    - openstack_dashboard
+    - openstack_block-storage
+    - reboot
+
+    

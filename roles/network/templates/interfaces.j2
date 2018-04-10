@@ -1,0 +1,30 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto br-ex
+iface br-ex inet static
+    address {{ local_ip }}
+    netmask 255.255.255.0
+    gateway {{ gateway }}
+    dns-nameservers {{ gateway }}
+    dns-search flg.jp
+
+auto {{ ens0 }}
+iface {{ ens0 }} inet manual
+     up ifconfig $IFACE 0.0.0.0 up
+     up ip link set $IFACE promisc on
+     down ip link set $IFACE promisc off
+     down ifconfig $IFACE down
+        
+auto {{ ens1 }}
+iface {{ ens1 }} inet manual
+     up ifconfig $IFACE 0.0.0.0 up
+     up ip link set $IFACE promisc on
+     down ip link set $IFACE promisc off
+     down ifconfig $IFACE down

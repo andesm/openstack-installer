@@ -1,0 +1,18 @@
+---
+
+- name: 
+  debug: msg='noop'
+  #meta: noop
+
+- name: cinder-scheduler restart
+  service: name=cinder-scheduler state=restarted        
+
+- name: cinder-api restart
+  service: name=cinder-api state=restarted        
+  
+- name: tgt restart
+  service: name=tgt state=restarted        
+
+- name: cinder-volume restart
+  service: name=cinder-volume state=restarted        
+

@@ -1,0 +1,10 @@
+---
+
+- name: 
+  debug: msg='noop'
+  #meta: noop
+
+- name: networking restart
+  service: name=networking state=restarted
+
+  

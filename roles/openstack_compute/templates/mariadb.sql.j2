@@ -1,0 +1,9 @@
+CREATE DATABASE {{ component }}_api;
+CREATE DATABASE {{ component }};
+CREATE DATABASE {{ component }}_cell0;
+GRANT ALL PRIVILEGES ON {{ component }}_api.* TO '{{ component }}'@'localhost' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}_api.* TO '{{ component }}'@'%' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}.* TO '{{ component }}'@'localhost' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}.* TO '{{ component }}'@'%' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}_cell0.* TO '{{ component }}'@'localhost' IDENTIFIED BY '{{ openstack_password }}';
+GRANT ALL PRIVILEGES ON {{ component }}_cell0.* TO '{{ component }}'@'%' IDENTIFIED BY '{{ openstack_password }}';

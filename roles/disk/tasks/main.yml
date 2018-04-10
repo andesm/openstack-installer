@@ -1,0 +1,64 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- name: Check the cinder-volumes exists
+  shell: 'vgs | grep cinder-volumes'
+  register: result
+  changed_when: False
+  failed_when: False
+  
+- name: Create the GPT
+  expect:
+    command: gdisk '{{ item }}'
+    responses: 
+      'Command': 'w'
+      'Do you want to proceed': 'y'
+  when: result.rc
+  with_items:
+    - '{{ zdisk1 }}'
+    - '{{ zdisk2 }}'
+    - '{{ ssd }}'
+    
+- name: Attache a ZFS filesystem
+  shell: '{{ item }}'
+  when: result.rc
+  with_items:
+    - systemctl enable lvm2-lvmetad.service
+    - systemctl enable lvm2-lvmetad.socket
+    - systemctl start lvm2-lvmetad.service
+    - systemctl start lvm2-lvmetad.socket
+    - 'zpool create -f zfs-storage mirror {{ zdisk1 }} {{ zdisk2 }}'
+    - zfs create -V 10G zfs-storage/flg
+    - zpool import -a
+    - losetup /dev/loop2 /dev/zd0
+
+- name: Create a partition on that device
+  expect:
+    command: gdisk '{{ item }}'
+    responses:
+      'Command':
+        - 'n'
+        - 'w'
+      'Partition number': ''
+      'First sector': ''
+      'Last sector': ''
+      'Hex code or GUID': '8e00'
+      'Do you want to proceed': 'y'
+  when: result.rc
+  with_items:
+    - /dev/loop2
+    - '{{ ssd }}'
+  
+- name: Create the LVM volume group
+  shell: '{{ item }}'
+  when: result.rc
+  with_items:
+    - pvcreate -f /dev/loop2
+    - vgcreate -f cinder-volumes /dev/loop2
+    - pvcreate -f '{{ ssd }}'1
+    - vgcreate -f cinder-volumes-2 '{{ ssd }}'1
+    
+    

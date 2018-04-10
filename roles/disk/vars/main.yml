@@ -1,0 +1,8 @@
+---
+
+packages:
+  - lvm2
+  - thin-provisioning-tools
+  - zfsutils-linux
+  - gdisk
+

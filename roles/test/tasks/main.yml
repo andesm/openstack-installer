@@ -1,0 +1,144 @@
+---
+
+- include: roles/lib/tasks/init_role.yml
+
+- name: Create flavors
+  os_nova_flavor:
+    cloud: openstack
+    state: present
+    name: '{{ item.name }}'
+    ram: '{{ item.ram }}'
+    vcpus: '{{ item.vcpus }}'
+    disk: '{{ item.disk }}'
+  with_items:
+    - name: small
+      ram: 512
+      disk: 2
+      vcpus: 1
+
+- name: Upload images from local files
+  os_image:
+    cloud: openstack
+    state: present
+    name: '{{ item.name }}'
+    container_format: bare
+    disk_format: iso
+    filename: '{{ item.filename }}'
+  with_items:
+    - name: ArchLinux
+      filename: images/archlinux-2018.04.01-x86_64.iso
+    - name: Ubuntu
+      filename: images/ubuntu-17.10.1-server-amd64.iso
+
+- name: Create external network
+  os_network:
+    cloud: openstack
+    state: present
+    name: '{{ item }}'
+    external: true
+    provider_network_type: flat
+    provider_physical_network: '{{ item }}'
+  with_items:
+    - pppoe
+    - external
+    
+- name: Create internal network
+  os_network:
+    cloud: openstack
+    state: present
+    name: flg
+
+- name: Create pppoe subnet
+  os_subnet:
+    cloud: openstack
+    state: present
+    network_name: pppoe
+    name: pppoe
+    enable_dhcp: True
+    cidr: 219.117.195.0/24
+
+- name: Create external subnet
+  os_subnet:
+    cloud: openstack
+    state: present
+    network_name: external
+    name: external
+    enable_dhcp: True
+    gateway_ip: 192.168.1.11
+    dns_nameservers:
+      - 192.168.1.11
+    allocation_pool_start: 192.168.1.150
+    allocation_pool_end: 192.168.1.180
+    cidr: 192.168.1.0/24
+    
+- name: Create flg subnet
+  os_subnet:
+    cloud: openstack
+    state: present
+    network_name: flg
+    name: flg
+    gateway_ip: 10.1.1.254
+    dns_nameservers:
+      - 192.168.1.11
+    cidr: 10.1.1.0/24
+    
+- name: Create a router
+  os_router:
+    cloud: openstack
+    state: present
+    name: flg
+    network: external
+    interfaces:
+      - flg
+        
+- name: Create a new instances
+  os_server:
+    cloud: openstack
+    state: present
+    name: '{{ item.name }}'
+    image: '{{ item.image }}'
+    flavor: '{{ item.flavor }}'
+    timeout: 600
+    auto_ip: no
+    nics:
+      - net-name: flg
+        port-name: '{{ item.name }}'
+  with_items:
+    - name : ArchLinux
+      image: ArchLinux
+      flavor: small
+    - name : Ubuntu
+      image: Ubuntu
+      flavor: small
+
+- name: Create new floating IPs
+  command: 'neutron floatingip-create external  --floating-ip-address {{ item }}'
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+  changed_when: false
+  failed_when: false
+  with_items:
+  - 192.168.1.161
+
+- name: Assign a new floating IP to the instance 
+  command: 'nova floating-ip-associate {{ item.server }}  {{ item.address }}'
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+  changed_when: false
+  failed_when: false
+  with_items:
+  - server: cirros
+    address: 192.168.1.161
+    

@@ -1,0 +1,57 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+
+- include_tasks: roles/lib/tasks/import_database.yml
+
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- include_tasks: roles/lib/tasks/create_configs.yml
+
+- include_tasks: roles/openstack_lib/tasks/service_db_sync.yml
+
+- name: Populate the Identity service database
+  command: keystone-manage {{ item }}
+  register: result
+  changed_when: False
+  with_items:
+    - fernet_setup --keystone-user keystone --keystone-group keystone
+    - credential_setup --keystone-user keystone --keystone-group keystone
+    - bootstrap --bootstrap-password {{ openstack_password }} --bootstrap-admin-url http://{{ controller }}:5000/v3/ --bootstrap-internal-url http://{{ controller }}:5000/v3/ --bootstrap-public-url http://{{ controller }}:5000/v3/ --bootstrap-region-id RegionOne
+  
+- name: Remove the SQLite database file
+  file:
+    path: /var/lib/keystone/keystone.db
+    force: yes
+    state: absent
+  
+- name: Check that the Service Project exists
+  shell: openstack project list | grep service
+  register: result
+  failed_when: False
+  changed_when: False
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+
+#- debug: var=result.rc
+  
+- name: Create the Identity service
+  command: openstack {{ item }}
+  when: result.rc
+  environment:
+    OS_USERNAME: admin
+    OS_PASSWORD: '{{ openstack_password }}'
+    OS_PROJECT_NAME: admin
+    OS_USER_DOMAIN_NAME: Default
+    OS_PROJECT_DOMAIN_NAME: Default
+    OS_AUTH_URL: 'http://{{ controller }}:5000/v3'
+    OS_IDENTITY_API_VERSION: 3
+  with_items: '{{ openstack_commands }}'
+
+  

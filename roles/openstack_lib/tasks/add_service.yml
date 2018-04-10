@@ -1,0 +1,12 @@
+---
+
+- include_tasks: roles/openstack_lib/tasks/create_identity_service.yml
+  vars:
+    openstack_commands:        
+      - user create --domain default --password {{ openstack_password }} {{ component }}
+      - role add --project service --user {{ component }} admin
+      - service create --name {{ component }} --description "OpenStack {{ service }}" {{ service }}
+      - endpoint create --region RegionOne {{ service }} public http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }} internal http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }} admin http://{{ controller }}:{{ api_port }}
+

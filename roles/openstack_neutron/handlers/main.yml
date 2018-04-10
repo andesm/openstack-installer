@@ -1,0 +1,23 @@
+---
+
+- name: nova-api restart
+  service: name=nova-api state=restarted        
+
+- name: neutron-server restart
+  service: name=neutron-server state=restarted        
+
+#- name: neutron-linuxbridge-agent restart
+#  service: name=neutron-linuxbridge-agent state=restarted        
+
+- name: neutron-openvswitch-agent restart
+  service: name=neutron-openvswitch-agent state=restarted
+  
+- name: neutron-dhcp-agent restart
+  service: name=neutron-dhcp-agent state=restarted        
+
+- name: neutron-metadata-agent restart
+  service: name=neutron-metadata-agent state=restarted        
+
+- name: neutron-l3-agent restart
+  service: name=neutron-l3-agent state=restarted        
+

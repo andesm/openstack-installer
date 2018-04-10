@@ -1,0 +1,49 @@
+---
+
+packages:
+  - openvswitch-switch
+
+services:
+  - rc-local
+  
+replaces:
+  - file: /etc/hosts
+    contents:
+      - regexp:  '127.0.1.1       ubuntu'
+        replace: '127.0.0.1       {{ hostname }}'
+    notify:
+      - noop
+
+templates:
+  - files:
+      - path: /etc/netplan/50-cloud-init.yaml
+      - path: /etc/rc.local        
+        mode: '0755'
+      #- path: /etc/network/interfaces
+      - path: /etc/hostname
+    notify:
+      - noop
+
+blockinfiles:
+  - file: /etc/hosts
+    contents:
+      - insertafter: EOF
+        block: |
+          {{ local_ip }} {{ hostname }}
+    notify:
+      - noop
+  - file: /etc/systemd/resolved.conf
+    contents:
+      - insertafter: #DNS=
+        block: |
+          DNS={{ gateway }}
+    notify:
+      - noop
+
+copy:
+  - files:
+      - path: /etc/systemd/system/rc-local.service
+    notify:
+      - noop
+
+      

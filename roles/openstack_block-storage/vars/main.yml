@@ -1,0 +1,42 @@
+---
+
+component: cinder
+service: volume
+api_port: 8776/v2/%\(tenant_id\)s
+api_port2: 8776/v3/%\(tenant_id\)s
+
+packages:
+  - cinder-api
+  - cinder-scheduler
+  - cinder-volume
+  - lvm2
+  - thin-provisioning-tools
+  - zfsutils-linux
+  - gdisk
+
+services:
+  - rc-local.service
+  
+copy:
+  - files:
+      - path: /etc/systemd/system/rc-local.service
+    notify:
+      - noop
+
+templates:
+  - files:
+      - path: /etc/cinder/cinder.conf
+      - path: /etc/rc.local
+        mode: '0744'
+    notify:
+      - cinder-scheduler restart
+      - apache2 restart
+      - tgt restart
+      - cinder-volume restart
+
+db_syncs:
+  - command: cinder-manage db sync 
+    become_user: cinder
+
+  
+

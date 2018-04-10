@@ -1,0 +1,14 @@
+[DEFAULT]
+
+[linux_bridge]
+physical_interface_mappings = external:{{ ens0 }},pppoe:{{ ens1 }}
+
+[vxlan]
+enable_vxlan = true
+local_ip = {{ local_ip }}
+l2_population = true
+
+[securitygroup]
+firewall_driver = neutron.agent.firewall.NoopFirewallDriver
+enable_security_group = false
+        

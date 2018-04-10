@@ -1,0 +1,11 @@
+#!/bin/sh
+
+ovs-vsctl add-br br-ex
+ovs-vsctl add-port br-ex {{ ens0 }}
+
+ip link set br-ex up
+ip link set {{ ens0 }} up
+ip addr add {{ local_ip }}/24 dev br-ex
+ip route add default via {{ gateway }}
+
+

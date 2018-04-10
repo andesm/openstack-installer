@@ -1,0 +1,10 @@
+---
+
+- hosts: openstack
+  become: yes
+  roles:
+    - init
+    - disk
+    
+
+    

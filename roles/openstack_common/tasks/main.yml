@@ -1,0 +1,43 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+    
+- name: Install ubuntu-cloud-keyring 
+  apt:
+    name: software-properties-common
+    state: latest
+    update_cache: yes
+
+- name: Enable the OpenStack repository
+  expect:
+    command: add-apt-repository cloud-archive:queens
+    responses: 
+      'ENTER': ''
+  changed_when: False
+  failed_when: False
+  
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- include_tasks: roles/lib/tasks/create_configs.yml
+
+- name: Add the openstack user
+  command: 'rabbitmqctl add_user openstack {{ openstack_password }}'
+  register: result
+  changed_when: '"user_already_exists" not in result.stderr'
+  failed_when: 'result.rc and "user_already_exists" not in result.stderr'
+
+- name: Permit configuration, write, and read access for the openstack user
+  command: rabbitmqctl set_permissions openstack ".*" ".*" ".*"
+  changed_when: False
+
+- name: Create the admin-openrc file and add the following content
+  template:
+    src: admin-openrc.j2
+    dest: '{{ ansible_user_dir }}/admin-openrc'
+
+- name: Create the admin-openrc file and add the following content
+  template:
+    src: admin-openrc.j2
+    dest: '/home/openstack/admin-openrc'
+  become_user: openstack
+  become: yes

@@ -1,0 +1,49 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+
+- include_tasks: roles/lib/tasks/import_database.yml
+
+- include_tasks: roles/openstack_lib/tasks/create_identity_service.yml
+  vars:
+    openstack_commands:        
+      - user create --domain default --password {{ openstack_password }} {{ component }}
+      - role add --project service --user {{ component }} admin
+      - service create --name {{ component }} --description "OpenStack {{ service }}" {{ service }}
+      - endpoint create --region RegionOne {{ service }} public http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }} internal http://{{ controller }}:{{ api_port }}
+      - endpoint create --region RegionOne {{ service }} admin http://{{ controller }}:{{ api_port }}
+      - user create --domain default --password {{ openstack_password }}  placement
+      - role add --project service --user placement admin
+      - service create --name placement --description "Placement API" placement
+      - endpoint create --region RegionOne placement public http://{{ controller }}:8778
+      - endpoint create --region RegionOne placement internal http://{{ controller }}:8778
+      - endpoint create --region RegionOne placement admin http://{{ controller }}:8778
+
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- include_tasks: roles/lib/tasks/create_configs.yml
+
+- include_tasks: roles/openstack_lib/tasks/service_db_sync.yml
+
+- meta: flush_handlers
+
+- name: Check  the service database
+  shell: nova-manage cell_v2 list_cells | grep cell1
+  changed_when: false
+  failed_when: false
+  register: result
+
+- name: Synchronize the service database
+  command: nova-manage cell_v2 create_cell --name=cell1 --verbose
+  when: result.rc
+  changed_when: '"done" in result.stderr or "Add" in result.stderr'
+  become_user: nova
+
+- pause: seconds=10
+
+- name: Discover compute hosts
+  command: nova-manage cell_v2 discover_hosts --verbose
+  changed_when: false
+  become_user: nova
+

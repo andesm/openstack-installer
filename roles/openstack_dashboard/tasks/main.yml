@@ -1,0 +1,18 @@
+---
+
+- include: roles/lib/tasks/init_role.yml
+
+- include: roles/lib/tasks/import_database.yml
+
+- include: roles/openstack_lib/tasks/add_service.yml
+  
+- include: roles/lib/tasks/install_packages.yml
+
+- include: roles/lib/tasks/create_configs.yml
+
+- include: roles/openstack_lib/tasks/service_db_sync.yml
+
+#- name: chown www-data /var/lib/openstack-dashboard/secret_key 
+#  file:
+#    path: /var/lib/openstack-dashboard/secret_key
+#    owner: www-data

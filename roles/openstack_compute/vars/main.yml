@@ -1,0 +1,40 @@
+---
+
+component: nova
+service: compute
+api_port: 8774/v2.1/%\(tenant_id\)s
+
+packages:
+  - nova-api
+  - nova-conductor
+  - nova-consoleauth
+  - nova-spiceproxy
+  - nova-novncproxy
+  - nova-scheduler
+  - nova-compute
+  - nova-placement-api
+  
+
+templates:
+  - files:
+      - path: /etc/nova/nova.conf
+    notify:
+      - nova-api restart
+      - nova-consoleauth restart
+      - nova-scheduler restart
+      - nova-conductor restart
+      - nova-spiceproxy restart
+      - nova-compute restart
+    
+db_syncs:
+  - command: nova-manage api_db sync
+    become_user: nova
+  - command: nova-manage cell_v2 map_cell0
+    become_user: nova
+  - command: nova-manage db sync
+    become_user: nova
+
+
+  
+
+    

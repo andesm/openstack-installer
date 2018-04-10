@@ -1,0 +1,41 @@
+---
+
+packages:
+  - mariadb-server
+  - python-pymysql
+  - python-mysqldb
+
+replaces:
+  - file: /etc/mysql/mariadb.conf.d/50-server.cnf
+    contents:
+      - regexp:  'character-set-server\s+= utf8mb4'
+        replace: 'character-set-server = utf8'
+      - regexp:  'collation-server\s+= utf8mb4_general_ci'
+        replace: 'collation-server = utf8_general_ci'
+      - regexp:  'bind-address\s+= 127.0.0.1'
+        replace: 'bind-address = {{ local_ip }}'
+    notify:
+      - mysql restart
+  - file: /etc/mysql/mariadb.conf.d/50-client.cnf
+    contents:
+      - regexp:  'default-character-set = utf8mb4'
+        replace: 'default-character-set = utf8'
+    notify:
+      - mysql restart
+  - file: /etc/mysql/mariadb.conf.d/50-mysql-clients.cnf
+    contents:
+      - regexp:  'default-character-set = utf8mb4'
+        replace: 'default-character-set = utf8'
+    notify:
+      - mysql restart
+      
+blockinfiles:
+  - file: /etc/mysql/mariadb.conf.d/50-server.cnf
+    contents:
+      - insertafter: ^\[mysqld\]$
+        block: |
+          default-storage-engine = innodb
+          innodb_file_per_table = on
+          max_connections = 4096
+    notify:
+      - mysql restart

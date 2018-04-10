@@ -1,0 +1,11 @@
+clouds:
+  openstack:
+    auth:
+      auth_url: http://192.168.1.17:5000/v3
+      password: openstack
+      project_domain_id: default
+      project_name: admin
+      user_domain_id: default
+      username: admin
+    identity_api_version: '3'
+    image_api_version: '2'

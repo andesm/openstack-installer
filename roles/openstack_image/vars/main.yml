@@ -1,0 +1,24 @@
+---
+
+component: glance
+service: image
+api_port: 9292
+
+packages:
+  - glance
+
+templates:
+  - files:
+      - path: /etc/glance/glance-api.conf
+      - path: /etc/glance/glance-registry.conf
+    notify:
+      - glance-registry restart
+      - glance-api restart
+
+db_syncs:
+  - command: glance-manage db_sync
+    become_user: glance
+
+  
+
+    

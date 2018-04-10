@@ -1,0 +1,13 @@
+---
+
+- name: Synchronize the service database
+  command: '{{ item.command }}'
+  register: result
+  when: db_syncs.0 is not none
+  changed_when: '"done" in result.stderr or "Add" in result.stderr'
+  become_user: '{{ item.become_user }}'
+  with_items: '{{ db_syncs }}'
+  
+- name: Reset the config valiable
+  include_vars: roles/openstack_lib/vars/config_default.yml
+

@@ -1,0 +1,15 @@
+---
+
+- include: setup_network.yml
+  
+- include: deploy_openstack.yml 
+
+- include: deploy_flg_vm.yml 
+
+- include: vyos_config.yml
+
+- include: install_vm_app.yml
+
+  
+  
+  

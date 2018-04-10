@@ -1,0 +1,14 @@
+[DEFAULT]
+
+[agent]
+tunnel_types = vxlan
+l2_population = true
+        
+[ovs]
+bridge_mappings = pppoe:br-pppoe,external:br-ex
+local_ip = {{ local_ip }}
+
+[securitygroup]
+firewall_driver = neutron.agent.firewall.NoopFirewallDriver
+enable_security_group = false
+        

@@ -1,0 +1,8 @@
+use mysql;
+delete from user where User='root';
+flush privileges;
+grant all privileges on *.* to 'root'@'localhost' identified by '{{ openstack_password }}' with grant option;
+grant all privileges on *.* to 'root'@'127.0.0.1' identified by '{{ openstack_password }}' with grant option;
+grant all privileges on *.* to 'root'@'{{ local_ip }}' identified by '{{ openstack_password }}' with grant option;
+grant all privileges on *.* to 'root'@'{{ controller }}' identified by '{{ openstack_password }}' with grant option;
+grant all privileges on *.* to 'root'@'%' identified by '{{ openstack_password }}' with grant option;

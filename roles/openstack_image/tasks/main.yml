@@ -1,0 +1,16 @@
+---
+
+- include_tasks: roles/lib/tasks/init_role.yml
+
+- include_tasks: roles/lib/tasks/import_database.yml
+  
+- include_tasks: roles/openstack_lib/tasks/add_service.yml
+
+- include_tasks: roles/lib/tasks/install_packages.yml
+
+- include_tasks: roles/lib/tasks/create_configs.yml
+
+- include_tasks: roles/openstack_lib/tasks/service_db_sync.yml
+
+  
+  

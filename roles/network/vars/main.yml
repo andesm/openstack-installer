@@ -2,7 +2,7 @@
 
 packages:
   - openvswitch-switch
-
+  
 services:
   - rc-local
   

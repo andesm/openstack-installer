@@ -2,8 +2,8 @@
 
 packages:
   - mariadb-server
-  - python-pymysql
-  - python-mysqldb
+  - python3-pymysql
+  - python3-mysqldb
 
 replaces:
   - file: /etc/mysql/mariadb.conf.d/50-server.cnf

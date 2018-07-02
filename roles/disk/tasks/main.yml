@@ -58,7 +58,7 @@
   with_items:
     - pvcreate -f /dev/loop2
     - vgcreate -f cinder-volumes /dev/loop2
-    - pvcreate -f '{{ ssd }}'1
-    - vgcreate -f cinder-volumes-2 '{{ ssd }}'1
+    - pvcreate -f '{{ ssd }}'
+    - vgcreate -f cinder-volumes-2 '{{ ssd }}'
     
     

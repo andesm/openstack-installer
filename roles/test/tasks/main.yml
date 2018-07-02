@@ -22,13 +22,18 @@
     state: present
     name: '{{ item.name }}'
     container_format: bare
-    disk_format: iso
+    disk_format: '{{ item.format }}'
     filename: '{{ item.filename }}'
   with_items:
     - name: ArchLinux
+      format: iso
       filename: images/archlinux-2018.04.01-x86_64.iso
     - name: Ubuntu
+      format: iso
       filename: images/ubuntu-17.10.1-server-amd64.iso
+    - name: cirros
+      format: qcow2
+      filename: images/cirros-0.3.5-x86_64-disk.img
 
 - name: Create external network
   os_network:
@@ -109,6 +114,9 @@
       flavor: small
     - name : Ubuntu
       image: Ubuntu
+      flavor: small
+    - name : cirros
+      image: cirros
       flavor: small
 
 - name: Create new floating IPs

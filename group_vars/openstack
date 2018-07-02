@@ -1,4 +1,4 @@
-ansible_python_interpreter: /usr/bin/python2
+ansible_python_interpreter: /usr/bin/python3
 openstack_password: openstack
 hostname: openstack
 controller: 192.168.1.17
@@ -6,7 +6,6 @@ local_ip: 192.168.1.17
 gateway: 192.168.1.11        
 ens0: ens33
 ens1: ens38
+ssd: /dev/sda3
 zdisk1: /dev/sdb
 zdisk2: /dev/sdc
-ssd: /dev/sdd
-        

@@ -6,6 +6,9 @@ packages:
   - memcached
   - python-memcache
 
+pip:
+  - openstacksdk
+
 replaces:
   - file: /etc/memcached.conf
     contents:

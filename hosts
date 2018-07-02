@@ -1,8 +1,6 @@
 [dhcp]
-192.168.1.114 ansible_ssh_user=openstack ansible_ssh_pass=openstack ansible_become_pass=openstack
+192.168.1.148 ansible_ssh_user=openstack ansible_ssh_pass=openstack ansible_become_pass=openstack
 [openstack]
 192.168.1.17 ansible_ssh_user=openstack ansible_ssh_pass=openstack ansible_become_pass=openstack
 [local]
 127.0.0.1        
-
-        
